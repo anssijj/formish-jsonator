@@ -12,20 +12,16 @@ interface JsonPreviewProps {
 }
 
 export const JsonPreview = ({ elements }: JsonPreviewProps) => {
-  const jsonSchema = {
-    type: "object",
-    properties: elements.reduce((acc, element) => {
-      acc[element.label.toLowerCase().replace(/\s+/g, "_")] = {
-        type: element.type === "number" ? "number" : "string",
-        title: element.label,
-        required: element.required,
-      };
-      return acc;
-    }, {} as Record<string, any>),
-    required: elements
-      .filter((element) => element.required)
-      .map((element) => element.label.toLowerCase().replace(/\s+/g, "_")),
-  };
+  const jsonSchema = elements.map((element) => {
+    const fieldName = element.label.toLowerCase().replace(/\s+/g, "_");
+    return {
+      data: {
+        targetVariables: fieldName
+      },
+      path: `details.${fieldName}`,
+      type: element.type === "number" ? "number" : "string"
+    };
+  });
 
   return (
     <Card className="p-4 bg-neutral-900 text-neutral-50">
