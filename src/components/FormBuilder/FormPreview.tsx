@@ -1,4 +1,10 @@
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 
 interface FormPreviewProps {
   elements: Array<{
@@ -14,21 +20,90 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
   return (
     <Card className="p-6 bg-white/50 backdrop-blur-sm shadow-lg animate-fade-in">
       <form className="space-y-6">
-        {elements.map((element) => (
-          <div key={element.id} className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              {element.label}
-              {element.required && (
-                <span className="text-destructive ml-1">*</span>
-              )}
-            </label>
-            <input
-              type={element.type}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder={`Enter ${element.label.toLowerCase()}`}
-            />
-          </div>
-        ))}
+        {elements.map((element) => {
+          const id = element.label.toLowerCase().replace(/\s+/g, "_");
+          
+          switch (element.type) {
+            case "select":
+              return (
+                <div key={element.id} className="space-y-2">
+                  <Label htmlFor={id}>
+                    {element.label}
+                    {element.required && <span className="text-destructive ml-1">*</span>}
+                  </Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder={`Select ${element.label.toLowerCase()}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {element.options?.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              );
+
+            case "radio":
+              return (
+                <div key={element.id} className="space-y-2">
+                  <Label>
+                    {element.label}
+                    {element.required && <span className="text-destructive ml-1">*</span>}
+                  </Label>
+                  <RadioGroup>
+                    {element.options?.map((option) => (
+                      <div key={option} className="flex items-center space-x-2">
+                        <RadioGroupItem value={option} id={`${id}_${option}`} />
+                        <Label htmlFor={`${id}_${option}`}>{option}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+              );
+
+            case "checkbox":
+              return (
+                <div key={element.id} className="flex items-center space-x-2">
+                  <Checkbox id={id} required={element.required} />
+                  <Label htmlFor={id}>{element.label}</Label>
+                </div>
+              );
+
+            case "textarea":
+              return (
+                <div key={element.id} className="space-y-2">
+                  <Label htmlFor={id}>
+                    {element.label}
+                    {element.required && <span className="text-destructive ml-1">*</span>}
+                  </Label>
+                  <Textarea
+                    id={id}
+                    placeholder={`Enter ${element.label.toLowerCase()}`}
+                    required={element.required}
+                  />
+                </div>
+              );
+
+            default:
+              return (
+                <div key={element.id} className="space-y-2">
+                  <Label htmlFor={id}>
+                    {element.label}
+                    {element.required && <span className="text-destructive ml-1">*</span>}
+                  </Label>
+                  <Input
+                    type={element.type}
+                    id={id}
+                    placeholder={`Enter ${element.label.toLowerCase()}`}
+                    required={element.required}
+                  />
+                </div>
+              );
+          }
+        })}
       </form>
     </Card>
   );

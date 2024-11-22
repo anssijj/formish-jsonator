@@ -2,8 +2,10 @@ import { useState } from "react";
 import { FormElement } from "@/components/FormBuilder/FormElement";
 import { FormPreview } from "@/components/FormBuilder/FormPreview";
 import { JsonPreview } from "@/components/FormBuilder/JsonPreview";
+import { HtmlPreview } from "@/components/FormBuilder/HtmlPreview";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [elements, setElements] = useState([
@@ -73,18 +75,22 @@ const Index = () => {
           </div>
 
           <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-semibold text-neutral-900 mb-4">
-                Preview
-              </h2>
-              <FormPreview elements={elements} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-neutral-900 mb-4">
-                JSON Schema
-              </h2>
-              <JsonPreview elements={elements} />
-            </div>
+            <Tabs defaultValue="preview">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="preview">Preview</TabsTrigger>
+                <TabsTrigger value="json">JSON</TabsTrigger>
+                <TabsTrigger value="html">HTML</TabsTrigger>
+              </TabsList>
+              <TabsContent value="preview">
+                <FormPreview elements={elements} />
+              </TabsContent>
+              <TabsContent value="json">
+                <JsonPreview elements={elements} />
+              </TabsContent>
+              <TabsContent value="html">
+                <HtmlPreview elements={elements} />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
