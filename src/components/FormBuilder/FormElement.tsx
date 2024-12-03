@@ -14,6 +14,7 @@ interface FormElementProps {
     label: string;
     required: boolean;
     options?: string[];
+    accept?: string;
   };
   onDelete: (id: string) => void;
   onChange: (id: string, updates: any) => void;
@@ -63,9 +64,31 @@ export const FormElement = ({ element, onDelete, onChange }: FormElementProps) =
                 <SelectItem value="radio">Radio Buttons</SelectItem>
                 <SelectItem value="checkbox">Checkbox</SelectItem>
                 <SelectItem value="textarea">Text Area</SelectItem>
+                <SelectItem value="file">File Upload</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {element.type === "file" && (
+            <div>
+              <Label className="text-sm font-medium mb-2">Accepted File Types</Label>
+              <Select
+                value={element.accept}
+                onValueChange={(value) =>
+                  onChange(element.id, { ...element, accept: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select accepted file types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value=".pdf,.doc,.docx">Documents (PDF, DOC)</SelectItem>
+                  <SelectItem value="image/*">Images</SelectItem>
+                  <SelectItem value=".pdf,.doc,.docx,image/*">All Files</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="flex items-center space-x-2">
             <Checkbox

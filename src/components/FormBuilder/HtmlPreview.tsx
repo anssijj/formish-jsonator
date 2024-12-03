@@ -8,6 +8,7 @@ interface HtmlPreviewProps {
     label: string;
     required: boolean;
     options?: string[];
+    accept?: string;
   }>;
 }
 
@@ -19,6 +20,12 @@ export const HtmlPreview = ({ elements }: HtmlPreviewProps) => {
         const requiredAttr = element.required ? " required" : "";
         
         switch (element.type) {
+          case "file":
+            return `<div class="form-group">
+  <label for="${id}">${element.label}${element.required ? " *" : ""}</label>
+  <input type="file" id="${id}" name="${id}" accept="${element.accept}"${requiredAttr}>
+</div>`;
+
           case "select":
             return `<div class="form-group">
   <label for="${id}">${element.label}${element.required ? " *" : ""}</label>
@@ -64,7 +71,7 @@ export const HtmlPreview = ({ elements }: HtmlPreviewProps) => {
       })
       .join("\n\n");
 
-    return `<form action="/api/submit" method="POST">\n${formHtml}\n\n  <button type="submit" class="submit-button">Submit</button>\n</form>`;
+    return `<form action="/api/submit" method="POST" enctype="multipart/form-data">\n${formHtml}\n\n  <button type="submit" class="submit-button">Submit</button>\n</form>`;
   };
 
   return (

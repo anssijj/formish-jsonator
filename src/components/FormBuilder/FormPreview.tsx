@@ -14,17 +14,36 @@ interface FormPreviewProps {
     label: string;
     required: boolean;
     options?: string[];
+    accept?: string;
   }>;
 }
 
 export const FormPreview = ({ elements }: FormPreviewProps) => {
   return (
     <Card className="p-6 bg-white/50 backdrop-blur-sm shadow-lg animate-fade-in">
-      <form className="space-y-6" action="/api/submit" method="POST">
+      <form className="space-y-6" action="/api/submit" method="POST" encType="multipart/form-data">
         {elements.map((element) => {
           const id = element.label.toLowerCase().replace(/\s+/g, "_");
           
           switch (element.type) {
+            case "file":
+              return (
+                <div key={element.id} className="space-y-2">
+                  <Label htmlFor={id}>
+                    {element.label}
+                    {element.required && <span className="text-destructive ml-1">*</span>}
+                  </Label>
+                  <Input
+                    type="file"
+                    id={id}
+                    name={id}
+                    accept={element.accept}
+                    required={element.required}
+                    className="cursor-pointer"
+                  />
+                </div>
+              );
+
             case "select":
               return (
                 <div key={element.id} className="space-y-2">
