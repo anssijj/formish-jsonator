@@ -72,13 +72,13 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                   <Select 
                     name={id}
                     onValueChange={(value) => handleChange(element.id, value)}
-                    value={values[element.id]}
+                    value={values[element.id] || undefined}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={`Select ${element.label.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
-                      {element.options?.map((option) => (
+                      {element.options?.filter(Boolean).map((option) => (
                         <SelectItem key={option} value={option}>
                           {option}
                         </SelectItem>
@@ -96,7 +96,7 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                     {element.required && <span className="text-destructive ml-1">*</span>}
                   </Label>
                   <RadioGroup name={id}>
-                    {element.options?.map((option) => (
+                    {element.options?.filter(Boolean).map((option) => (
                       <div key={option} className="flex items-center space-x-2">
                         <RadioGroupItem value={option} id={`${id}_${option}`} />
                         <Label htmlFor={`${id}_${option}`}>{option}</Label>
