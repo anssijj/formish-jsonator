@@ -15,7 +15,8 @@ export const SelectFieldConfig = ({ element, onChange }: SelectFieldConfigProps)
   };
 
   const handleOptionsChange = (value: string) => {
-    const options = value.split(",").map(opt => {
+    // Split by comma and handle potential whitespace around commas
+    const options = value.split(/\s*,\s*/).filter(Boolean).map(opt => {
       const trimmed = opt.trim();
       return {
         display: trimmed, // Keep spaces for display
