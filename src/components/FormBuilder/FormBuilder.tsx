@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FormElement } from "./FormElement";
 import { ImportHtmlForm } from "./ImportHtmlForm";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Eye } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { FormPreview } from "./FormPreview";
 
 interface FormElementType {
   id: string;
@@ -31,7 +32,8 @@ interface FormBuilderProps {
 }
 
 export const FormBuilder = ({ elements, onElementsChange }: FormBuilderProps) => {
-  const [open, setOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
 
   const addElement = () => {
     const newElement = {
@@ -57,7 +59,7 @@ export const FormBuilder = ({ elements, onElementsChange }: FormBuilderProps) =>
 
   const handleImport = (importedElements: FormElementType[]) => {
     onElementsChange([...elements, ...importedElements]);
-    setOpen(false);
+    setImportDialogOpen(false);
   };
 
   return (
@@ -65,7 +67,7 @@ export const FormBuilder = ({ elements, onElementsChange }: FormBuilderProps) =>
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold text-neutral-900">Form Elements</h2>
         <div className="flex gap-2">
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 Import HTML
@@ -78,6 +80,24 @@ export const FormBuilder = ({ elements, onElementsChange }: FormBuilderProps) =>
               <ImportHtmlForm onImport={handleImport} />
             </DialogContent>
           </Dialog>
+
+          <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Form
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Form Preview</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4">
+                <FormPreview elements={elements} />
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <Button
             onClick={addElement}
             variant="outline"
