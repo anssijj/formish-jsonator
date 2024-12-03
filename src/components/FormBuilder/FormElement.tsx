@@ -7,24 +7,22 @@ import { Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
-interface FormElementProps {
-  element: {
-    id: string;
-    type: string;
-    label: string;
-    required: boolean;
-    options?: string[];
-    accept?: string;
-    showWhen?: {
-      field: string;
-      value: string;
-    };
+interface FormElementType {
+  id: string;
+  type: string;
+  label: string;
+  required: boolean;
+  options?: string[];
+  accept?: string;
+  showWhen?: {
+    field: string;
+    value: string;
   };
-  elements: Array<{
-    id: string;
-    type: string;
-    label: string;
-  }>;
+}
+
+interface FormElementProps {
+  element: FormElementType;
+  elements: FormElementType[];
   onDelete: (id: string) => void;
   onChange: (id: string, updates: any) => void;
 }
@@ -86,11 +84,11 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
             <div className="space-y-2">
               <Label className="text-sm font-medium">Show When</Label>
               <Select
-                value={element.showWhen?.field || ""}
+                value={element.showWhen?.field || "none"}
                 onValueChange={(value) =>
                   onChange(element.id, {
                     ...element,
-                    showWhen: value ? { field: value, value: "" } : undefined,
+                    showWhen: value !== "none" ? { field: value, value: "" } : undefined,
                   })
                 }
               >
@@ -98,7 +96,7 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
                   <SelectValue placeholder="Always show" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Always show</SelectItem>
+                  <SelectItem value="none">Always show</SelectItem>
                   {dropdownFields.map((field) => (
                     <SelectItem key={field.id} value={field.id}>
                       {field.label}
@@ -111,7 +109,7 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
                 <div>
                   <Label className="text-sm font-medium">When Value Is</Label>
                   <Select
-                    value={element.showWhen.value}
+                    value={element.showWhen.value || "select_value"}
                     onValueChange={(value) =>
                       onChange(element.id, {
                         ...element,
@@ -141,7 +139,7 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
             <div>
               <Label className="text-sm font-medium mb-2">Accepted File Types</Label>
               <Select
-                value={element.accept}
+                value={element.accept || "documents"}
                 onValueChange={(value) =>
                   onChange(element.id, { ...element, accept: value })
                 }
@@ -150,9 +148,9 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
                   <SelectValue placeholder="Select accepted file types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value=".pdf,.doc,.docx">Documents (PDF, DOC)</SelectItem>
-                  <SelectItem value="image/*">Images</SelectItem>
-                  <SelectItem value=".pdf,.doc,.docx,image/*">All Files</SelectItem>
+                  <SelectItem value="documents">.pdf,.doc,.docx</SelectItem>
+                  <SelectItem value="images">image/*</SelectItem>
+                  <SelectItem value="all">.pdf,.doc,.docx,image/*</SelectItem>
                 </SelectContent>
               </Select>
             </div>
