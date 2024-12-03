@@ -22,6 +22,8 @@ interface FormElementType {
     value: string;
   };
   recaptchaSiteKey?: string;
+  description?: string;
+  errorMessage?: string;
 }
 
 interface FormElementProps {
@@ -75,6 +77,28 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
                 <SelectItem value="recaptcha">reCAPTCHA</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Field Description */}
+          <div>
+            <Label className="text-sm font-medium mb-2">Description (Optional)</Label>
+            <Input
+              type="text"
+              value={element.description || ""}
+              onChange={(e) => handleChange({ description: e.target.value })}
+              placeholder="Help text for this field"
+            />
+          </div>
+
+          {/* Custom Error Message */}
+          <div>
+            <Label className="text-sm font-medium mb-2">Custom Error Message (Optional)</Label>
+            <Input
+              type="text"
+              value={element.errorMessage || ""}
+              onChange={(e) => handleChange({ errorMessage: e.target.value })}
+              placeholder="Custom validation message"
+            />
           </div>
 
           {(element.type === "select" || element.type === "radio") && (

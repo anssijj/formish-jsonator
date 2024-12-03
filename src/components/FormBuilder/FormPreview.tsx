@@ -24,14 +24,18 @@ interface FormPreviewProps {
       value: string;
     };
     recaptchaSiteKey?: string;
+    description?: string;
+    errorMessage?: string;
   }>;
 }
 
 export const FormPreview = ({ elements }: FormPreviewProps) => {
   const [values, setValues] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   const handleChange = (id: string, value: string) => {
     setValues((prev) => ({ ...prev, [id]: value }));
+    setErrors((prev) => ({ ...prev, [id]: false }));
   };
 
   const handleRecaptchaChange = (id: string, value: string | null) => {
@@ -43,13 +47,38 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
     return values[element.showWhen.field] === element.showWhen.value;
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Validate required fields
+    const newErrors: Record<string, boolean> = {};
+    elements.forEach((element) => {
+      if (element.required && !values[element.id]) {
+        newErrors[element.id] = true;
+      }
+    });
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      // Form is valid, proceed with submission
+      console.log('Form submitted:', values);
+    }
+  };
+
   return (
     <Card className="p-6 bg-white/50 backdrop-blur-sm shadow-lg animate-fade-in">
-      <form className="space-y-6" action="/api/submit" method="POST" encType="multipart/form-data">
+      <form 
+        onSubmit={handleSubmit}
+        className="space-y-6" 
+        noValidate
+        role="form"
+        aria-label="Contact form"
+      >
         {elements.map((element) => {
           if (!shouldShowField(element)) return null;
           
           const id = element.label.toLowerCase().replace(/\s+/g, "_");
+          const isError = errors[element.id];
+          const ariaDescribedBy = `${id}-description${isError ? ` ${id}-error` : ''}`;
           
           switch (element.type) {
             case "recaptcha":
@@ -61,7 +90,7 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                   />
                 </div>
               ) : (
-                <div key={element.id} className="text-red-500 text-center">
+                <div key={element.id} className="text-red-500 text-center" role="alert">
                   Please configure reCAPTCHA site key in the form builder
                 </div>
               );
@@ -71,7 +100,7 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                 <div key={element.id} className="space-y-2">
                   <Label htmlFor={id}>
                     {element.label}
-                    {element.required && <span className="text-destructive ml-1">*</span>}
+                    {element.required && <span className="text-destructive ml-1" aria-hidden="true">*</span>}
                   </Label>
                   <Input
                     type="file"
@@ -80,7 +109,20 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                     accept={element.accept}
                     required={element.required}
                     className="cursor-pointer"
+                    aria-required={element.required}
+                    aria-invalid={isError}
+                    aria-describedby={ariaDescribedBy}
                   />
+                  {element.description && (
+                    <p id={`${id}-description`} className="text-sm text-muted-foreground">
+                      {element.description}
+                    </p>
+                  )}
+                  {isError && (
+                    <p id={`${id}-error`} className="text-sm text-destructive" role="alert">
+                      {element.errorMessage || 'This field is required'}
+                    </p>
+                  )}
                 </div>
               );
 
@@ -89,14 +131,18 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                 <div key={element.id} className="space-y-2">
                   <Label htmlFor={id}>
                     {element.label}
-                    {element.required && <span className="text-destructive ml-1">*</span>}
+                    {element.required && <span className="text-destructive ml-1" aria-hidden="true">*</span>}
                   </Label>
                   <Select 
                     name={id}
                     onValueChange={(value) => handleChange(element.id, value)}
                     value={values[element.id] || undefined}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      aria-required={element.required}
+                      aria-invalid={isError}
+                      aria-describedby={ariaDescribedBy}
+                    >
                       <SelectValue placeholder={element.placeholder || `Select ${element.label.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
@@ -110,6 +156,16 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                       ))}
                     </SelectContent>
                   </Select>
+                  {element.description && (
+                    <p id={`${id}-description`} className="text-sm text-muted-foreground">
+                      {element.description}
+                    </p>
+                  )}
+                  {isError && (
+                    <p id={`${id}-error`} className="text-sm text-destructive" role="alert">
+                      {element.errorMessage || 'Please select an option'}
+                    </p>
+                  )}
                 </div>
               );
 
@@ -118,27 +174,59 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                 <div key={element.id} className="space-y-2">
                   <Label>
                     {element.label}
-                    {element.required && <span className="text-destructive ml-1">*</span>}
+                    {element.required && <span className="text-destructive ml-1" aria-hidden="true">*</span>}
                   </Label>
-                  <RadioGroup name={id}>
+                  <RadioGroup 
+                    name={id}
+                    aria-required={element.required}
+                    aria-invalid={isError}
+                    aria-describedby={ariaDescribedBy}
+                  >
                     {element.options?.filter(Boolean).map((option, index) => (
                       <div key={option} className="flex items-center space-x-2">
                         <RadioGroupItem 
                           value={element.optionValues?.[index] || option} 
-                          id={`${id}_${option}`} 
+                          id={`${id}_${option}`}
                         />
                         <Label htmlFor={`${id}_${option}`}>{option}</Label>
                       </div>
                     ))}
                   </RadioGroup>
+                  {element.description && (
+                    <p id={`${id}-description`} className="text-sm text-muted-foreground">
+                      {element.description}
+                    </p>
+                  )}
+                  {isError && (
+                    <p id={`${id}-error`} className="text-sm text-destructive" role="alert">
+                      {element.errorMessage || 'Please select an option'}
+                    </p>
+                  )}
                 </div>
               );
 
             case "checkbox":
               return (
                 <div key={element.id} className="flex items-center space-x-2">
-                  <Checkbox id={id} name={id} required={element.required} />
+                  <Checkbox 
+                    id={id} 
+                    name={id} 
+                    required={element.required}
+                    aria-required={element.required}
+                    aria-invalid={isError}
+                    aria-describedby={ariaDescribedBy}
+                  />
                   <Label htmlFor={id}>{element.label}</Label>
+                  {element.description && (
+                    <p id={`${id}-description`} className="text-sm text-muted-foreground">
+                      {element.description}
+                    </p>
+                  )}
+                  {isError && (
+                    <p id={`${id}-error`} className="text-sm text-destructive" role="alert">
+                      {element.errorMessage || 'This field is required'}
+                    </p>
+                  )}
                 </div>
               );
 
@@ -147,14 +235,27 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                 <div key={element.id} className="space-y-2">
                   <Label htmlFor={id}>
                     {element.label}
-                    {element.required && <span className="text-destructive ml-1">*</span>}
+                    {element.required && <span className="text-destructive ml-1" aria-hidden="true">*</span>}
                   </Label>
                   <Textarea
                     id={id}
                     name={id}
                     placeholder={element.placeholder || `Enter ${element.label.toLowerCase()}`}
                     required={element.required}
+                    aria-required={element.required}
+                    aria-invalid={isError}
+                    aria-describedby={ariaDescribedBy}
                   />
+                  {element.description && (
+                    <p id={`${id}-description`} className="text-sm text-muted-foreground">
+                      {element.description}
+                    </p>
+                  )}
+                  {isError && (
+                    <p id={`${id}-error`} className="text-sm text-destructive" role="alert">
+                      {element.errorMessage || 'This field is required'}
+                    </p>
+                  )}
                 </div>
               );
 
@@ -163,7 +264,7 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                 <div key={element.id} className="space-y-2">
                   <Label htmlFor={id}>
                     {element.label}
-                    {element.required && <span className="text-destructive ml-1">*</span>}
+                    {element.required && <span className="text-destructive ml-1" aria-hidden="true">*</span>}
                   </Label>
                   <Input
                     type={element.type}
@@ -171,7 +272,20 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                     name={id}
                     placeholder={element.placeholder || `Enter ${element.label.toLowerCase()}`}
                     required={element.required}
+                    aria-required={element.required}
+                    aria-invalid={isError}
+                    aria-describedby={ariaDescribedBy}
                   />
+                  {element.description && (
+                    <p id={`${id}-description`} className="text-sm text-muted-foreground">
+                      {element.description}
+                    </p>
+                  )}
+                  {isError && (
+                    <p id={`${id}-error`} className="text-sm text-destructive" role="alert">
+                      {element.errorMessage || 'This field is required'}
+                    </p>
+                  )}
                 </div>
               );
           }
