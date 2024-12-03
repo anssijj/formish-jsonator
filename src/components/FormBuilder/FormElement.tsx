@@ -18,6 +18,7 @@ interface FormElementType {
     field: string;
     value: string;
   };
+  recaptchaSiteKey?: string;
 }
 
 interface FormElementProps {
@@ -76,9 +77,24 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
                 <SelectItem value="checkbox">Checkbox</SelectItem>
                 <SelectItem value="textarea">Text Area</SelectItem>
                 <SelectItem value="file">File Upload</SelectItem>
+                <SelectItem value="recaptcha">reCAPTCHA</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {element.type === "recaptcha" && (
+            <div>
+              <Label className="text-sm font-medium mb-2">reCAPTCHA Site Key</Label>
+              <Input
+                type="text"
+                value={element.recaptchaSiteKey || ""}
+                onChange={(e) =>
+                  onChange(element.id, { ...element, recaptchaSiteKey: e.target.value })
+                }
+                placeholder="Enter your reCAPTCHA site key"
+              />
+            </div>
+          )}
 
           {dropdownFields.length > 0 && (
             <div className="space-y-2">

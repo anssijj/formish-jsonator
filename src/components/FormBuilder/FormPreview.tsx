@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import ReCAPTCHA from "react-google-recaptcha";
 
 interface FormPreviewProps {
   elements: Array<{
@@ -20,6 +21,7 @@ interface FormPreviewProps {
       field: string;
       value: string;
     };
+    recaptchaSiteKey?: string;
   }>;
 }
 
@@ -28,6 +30,10 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
 
   const handleChange = (id: string, value: string) => {
     setValues((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleRecaptchaChange = (id: string, value: string | null) => {
+    setValues((prev) => ({ ...prev, [id]: value || "" }));
   };
 
   const shouldShowField = (element: FormPreviewProps["elements"][0]) => {
@@ -44,6 +50,20 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
           const id = element.label.toLowerCase().replace(/\s+/g, "_");
           
           switch (element.type) {
+            case "recaptcha":
+              return element.recaptchaSiteKey ? (
+                <div key={element.id} className="flex justify-center">
+                  <ReCAPTCHA
+                    sitekey={element.recaptchaSiteKey}
+                    onChange={(value) => handleRecaptchaChange(element.id, value)}
+                  />
+                </div>
+              ) : (
+                <div key={element.id} className="text-red-500 text-center">
+                  Please configure reCAPTCHA site key in the form builder
+                </div>
+              );
+
             case "file":
               return (
                 <div key={element.id} className="space-y-2">
