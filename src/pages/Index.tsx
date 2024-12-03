@@ -1,15 +1,27 @@
 import { useState } from "react";
 import { FormElement } from "@/components/FormBuilder/FormElement";
-import { FormPreview } from "@/components/FormBuilder/FormPreview";
-import { JsonPreview } from "@/components/FormBuilder/JsonPreview";
-import { HtmlPreview } from "@/components/FormBuilder/HtmlPreview";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Download } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlusCircle } from "lucide-react";
+import { Header } from "@/components/FormBuilder/Header";
+import { PreviewTabs } from "@/components/FormBuilder/PreviewTabs";
 import { toast } from "sonner";
 
+interface FormElementType {
+  id: string;
+  type: string;
+  label: string;
+  required: boolean;
+  options?: string[];
+  accept?: string;
+  showWhen?: {
+    field: string;
+    value: string;
+  };
+  recaptchaSiteKey?: string;
+}
+
 const Index = () => {
-  const [elements, setElements] = useState([
+  const [elements, setElements] = useState<FormElementType[]>([
     {
       id: "1",
       type: "text",
@@ -32,7 +44,7 @@ const Index = () => {
     setElements(elements.filter((element) => element.id !== id));
   };
 
-  const updateElement = (id: string, updates: any) => {
+  const updateElement = (id: string, updates: Partial<FormElementType>) => {
     setElements(
       elements.map((element) =>
         element.id === id ? { ...element, ...updates } : element
@@ -174,14 +186,7 @@ ${formHtml}
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl font-bold tracking-tight text-neutral-900 mb-4">
-            Visual Form Builder
-          </h1>
-          <p className="text-neutral-600">
-            Create beautiful forms with JSON schema support
-          </p>
-        </div>
+        <Header onDownloadJson={downloadJson} onDownloadHtml={downloadHtml} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6 animate-slide-in">
@@ -189,12 +194,17 @@ ${formHtml}
               <h2 className="text-2xl font-semibold text-neutral-900">
                 Form Elements
               </h2>
-              <Button onClick={addElement} variant="outline" size="sm">
+              <Button 
+                onClick={addElement} 
+                variant="outline" 
+                size="sm"
+                className="hover:scale-105 transition-transform"
+              >
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Add Field
               </Button>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 glass-morphism rounded-lg p-6">
               {elements.map((element) => (
                 <FormElement
                   key={element.id}
@@ -208,34 +218,7 @@ ${formHtml}
           </div>
 
           <div className="space-y-8">
-            <Tabs defaultValue="preview">
-              <div className="flex justify-between items-center mb-4">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                  <TabsTrigger value="json">JSON</TabsTrigger>
-                  <TabsTrigger value="html">HTML</TabsTrigger>
-                </TabsList>
-                <div className="flex gap-2">
-                  <Button onClick={downloadJson} variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Save JSON
-                  </Button>
-                  <Button onClick={downloadHtml} variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Save HTML
-                  </Button>
-                </div>
-              </div>
-              <TabsContent value="preview">
-                <FormPreview elements={elements} />
-              </TabsContent>
-              <TabsContent value="json">
-                <JsonPreview elements={elements} />
-              </TabsContent>
-              <TabsContent value="html">
-                <HtmlPreview elements={elements} />
-              </TabsContent>
-            </Tabs>
+            <PreviewTabs elements={elements} />
           </div>
         </div>
       </div>
