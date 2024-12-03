@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Highlight, themes } from "prism-react-renderer";
 
 interface HtmlPreviewProps {
   elements: Array<{
@@ -77,9 +78,23 @@ export const HtmlPreview = ({ elements }: HtmlPreviewProps) => {
   return (
     <Card className="p-4 bg-neutral-900 text-neutral-50">
       <ScrollArea className="h-[400px]">
-        <pre className="text-sm font-mono whitespace-pre-wrap">
-          {generateHtml()}
-        </pre>
+        <Highlight
+          theme={themes.nightOwl}
+          code={generateHtml()}
+          language="html"
+        >
+          {({ className, style, tokens, getLineProps, getTokenProps }) => (
+            <pre className={className} style={{ ...style, background: 'transparent' }}>
+              {tokens.map((line, i) => (
+                <div key={i} {...getLineProps({ line })}>
+                  {line.map((token, key) => (
+                    <span key={key} {...getTokenProps({ token })} />
+                  ))}
+                </div>
+              ))}
+            </pre>
+          )}
+        </Highlight>
       </ScrollArea>
     </Card>
   );
