@@ -95,7 +95,7 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                     value={values[element.id] || undefined}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={`Select ${element.label.toLowerCase()}`} />
+                      <SelectValue placeholder={element.placeholder || `Select ${element.label.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {element.options?.filter(Boolean).map((option) => (
@@ -144,7 +144,7 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                   <Textarea
                     id={id}
                     name={id}
-                    placeholder={`Enter ${element.label.toLowerCase()}`}
+                    placeholder={element.placeholder || `Enter ${element.label.toLowerCase()}`}
                     required={element.required}
                   />
                 </div>
@@ -161,7 +161,7 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                     type={element.type}
                     id={id}
                     name={id}
-                    placeholder={`Enter ${element.label.toLowerCase()}`}
+                    placeholder={element.placeholder || `Enter ${element.label.toLowerCase()}`}
                     required={element.required}
                   />
                 </div>

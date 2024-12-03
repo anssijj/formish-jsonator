@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { BasicFieldConfig } from "./FieldTypes/BasicFieldConfig";
+import { SelectFieldConfig } from "./FieldTypes/SelectFieldConfig";
+import { FileFieldConfig } from "./FieldTypes/FileFieldConfig";
 
 interface FormElementType {
   id: string;
   type: string;
   label: string;
   required: boolean;
+  placeholder?: string;
   options?: string[];
   accept?: string;
   showWhen?: {
@@ -31,6 +33,10 @@ interface FormElementProps {
 export const FormElement = ({ element, elements, onDelete, onChange }: FormElementProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
+  const handleChange = (updates: Partial<FormElementType>) => {
+    onChange(element.id, { ...element, ...updates });
+  };
+
   const dropdownFields = elements.filter(
     (el) => el.type === "select" && el.id !== element.id
   );
@@ -43,25 +49,13 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
     >
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1 space-y-4">
-          <div>
-            <Label className="text-sm font-medium mb-2">Field Label</Label>
-            <Input
-              type="text"
-              value={element.label}
-              onChange={(e) =>
-                onChange(element.id, { ...element, label: e.target.value })
-              }
-              placeholder="Enter label"
-            />
-          </div>
+          <BasicFieldConfig element={element} onChange={handleChange} />
           
           <div>
             <Label className="text-sm font-medium mb-2">Field Type</Label>
             <Select
               value={element.type}
-              onValueChange={(value) =>
-                onChange(element.id, { ...element, type: value })
-              }
+              onValueChange={(value) => handleChange({ type: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select field type" />
@@ -82,18 +76,12 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
             </Select>
           </div>
 
-          {element.type === "recaptcha" && (
-            <div>
-              <Label className="text-sm font-medium mb-2">reCAPTCHA Site Key</Label>
-              <Input
-                type="text"
-                value={element.recaptchaSiteKey || ""}
-                onChange={(e) =>
-                  onChange(element.id, { ...element, recaptchaSiteKey: e.target.value })
-                }
-                placeholder="Enter your reCAPTCHA site key"
-              />
-            </div>
+          {(element.type === "select" || element.type === "radio") && (
+            <SelectFieldConfig element={element} onChange={handleChange} />
+          )}
+
+          {element.type === "file" && (
+            <FileFieldConfig element={element} onChange={handleChange} />
           )}
 
           {dropdownFields.length > 0 && (
@@ -102,8 +90,7 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
               <Select
                 value={element.showWhen?.field || "none"}
                 onValueChange={(value) =>
-                  onChange(element.id, {
-                    ...element,
+                  handleChange({
                     showWhen: value !== "none" ? { field: value, value: "" } : undefined,
                   })
                 }
@@ -127,8 +114,7 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
                   <Select
                     value={element.showWhen.value || "select_value"}
                     onValueChange={(value) =>
-                      onChange(element.id, {
-                        ...element,
+                      handleChange({
                         showWhen: { ...element.showWhen, value },
                       })
                     }
@@ -148,55 +134,6 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
                   </Select>
                 </div>
               )}
-            </div>
-          )}
-
-          {element.type === "file" && (
-            <div>
-              <Label className="text-sm font-medium mb-2">Accepted File Types</Label>
-              <Select
-                value={element.accept || "documents"}
-                onValueChange={(value) =>
-                  onChange(element.id, { ...element, accept: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select accepted file types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="documents">.pdf,.doc,.docx</SelectItem>
-                  <SelectItem value="images">image/*</SelectItem>
-                  <SelectItem value="all">.pdf,.doc,.docx,image/*</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id={`required-${element.id}`}
-              checked={element.required}
-              onCheckedChange={(checked) =>
-                onChange(element.id, { ...element, required: checked })
-              }
-            />
-            <Label htmlFor={`required-${element.id}`}>Required field</Label>
-          </div>
-
-          {(element.type === "select" || element.type === "radio") && (
-            <div>
-              <Label className="text-sm font-medium mb-2">Options</Label>
-              <Input
-                type="text"
-                placeholder="Comma-separated options"
-                value={element.options?.join(", ") || ""}
-                onChange={(e) =>
-                  onChange(element.id, {
-                    ...element,
-                    options: e.target.value.split(",").map((opt) => opt.trim()),
-                  })
-                }
-              />
             </div>
           )}
         </div>
