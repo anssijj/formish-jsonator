@@ -64,7 +64,7 @@ export const HtmlPreview = ({ elements }: HtmlPreviewProps) => {
       })
       .join("\n\n");
 
-    return `<form>\n${formHtml}\n\n  <button type="submit">Submit</button>\n</form>`;
+    return `<form action="/api/submit" method="POST">\n${formHtml}\n\n  <button type="submit" class="submit-button">Submit</button>\n</form>`;
   };
 
   return (
