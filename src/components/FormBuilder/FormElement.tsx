@@ -15,6 +15,7 @@ interface FormElementType {
   required: boolean;
   placeholder?: string;
   options?: string[];
+  optionValues?: string[];
   accept?: string;
   showWhen?: {
     field: string;

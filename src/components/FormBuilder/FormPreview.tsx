@@ -15,7 +15,9 @@ interface FormPreviewProps {
     type: string;
     label: string;
     required: boolean;
+    placeholder?: string;
     options?: string[];
+    optionValues?: string[];
     accept?: string;
     showWhen?: {
       field: string;
@@ -98,8 +100,11 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                       <SelectValue placeholder={element.placeholder || `Select ${element.label.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
-                      {element.options?.filter(Boolean).map((option) => (
-                        <SelectItem key={option} value={option}>
+                      {element.options?.filter(Boolean).map((option, index) => (
+                        <SelectItem 
+                          key={option} 
+                          value={element.optionValues?.[index] || option}
+                        >
                           {option}
                         </SelectItem>
                       ))}
@@ -116,9 +121,12 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                     {element.required && <span className="text-destructive ml-1">*</span>}
                   </Label>
                   <RadioGroup name={id}>
-                    {element.options?.filter(Boolean).map((option) => (
+                    {element.options?.filter(Boolean).map((option, index) => (
                       <div key={option} className="flex items-center space-x-2">
-                        <RadioGroupItem value={option} id={`${id}_${option}`} />
+                        <RadioGroupItem 
+                          value={element.optionValues?.[index] || option} 
+                          id={`${id}_${option}`} 
+                        />
                         <Label htmlFor={`${id}_${option}`}>{option}</Label>
                       </div>
                     ))}
