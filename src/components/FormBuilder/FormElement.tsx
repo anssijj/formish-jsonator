@@ -15,13 +15,26 @@ interface FormElementProps {
     required: boolean;
     options?: string[];
     accept?: string;
+    showWhen?: {
+      field: string;
+      value: string;
+    };
   };
+  elements: Array<{
+    id: string;
+    type: string;
+    label: string;
+  }>;
   onDelete: (id: string) => void;
   onChange: (id: string, updates: any) => void;
 }
 
-export const FormElement = ({ element, onDelete, onChange }: FormElementProps) => {
+export const FormElement = ({ element, elements, onDelete, onChange }: FormElementProps) => {
   const [isHovered, setIsHovered] = useState(false);
+
+  const dropdownFields = elements.filter(
+    (el) => el.type === "select" && el.id !== element.id
+  );
 
   return (
     <Card
@@ -68,6 +81,61 @@ export const FormElement = ({ element, onDelete, onChange }: FormElementProps) =
               </SelectContent>
             </Select>
           </div>
+
+          {dropdownFields.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Show When</Label>
+              <Select
+                value={element.showWhen?.field || ""}
+                onValueChange={(value) =>
+                  onChange(element.id, {
+                    ...element,
+                    showWhen: value ? { field: value, value: "" } : undefined,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Always show" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Always show</SelectItem>
+                  {dropdownFields.map((field) => (
+                    <SelectItem key={field.id} value={field.id}>
+                      {field.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {element.showWhen?.field && (
+                <div>
+                  <Label className="text-sm font-medium">When Value Is</Label>
+                  <Select
+                    value={element.showWhen.value}
+                    onValueChange={(value) =>
+                      onChange(element.id, {
+                        ...element,
+                        showWhen: { ...element.showWhen, value },
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select value" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {elements
+                        .find((el) => el.id === element.showWhen?.field)
+                        ?.options?.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
 
           {element.type === "file" && (
             <div>

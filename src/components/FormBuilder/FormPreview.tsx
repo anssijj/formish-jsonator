@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,14 +16,31 @@ interface FormPreviewProps {
     required: boolean;
     options?: string[];
     accept?: string;
+    showWhen?: {
+      field: string;
+      value: string;
+    };
   }>;
 }
 
 export const FormPreview = ({ elements }: FormPreviewProps) => {
+  const [values, setValues] = useState<Record<string, string>>({});
+
+  const handleChange = (id: string, value: string) => {
+    setValues((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const shouldShowField = (element: FormPreviewProps["elements"][0]) => {
+    if (!element.showWhen) return true;
+    return values[element.showWhen.field] === element.showWhen.value;
+  };
+
   return (
     <Card className="p-6 bg-white/50 backdrop-blur-sm shadow-lg animate-fade-in">
       <form className="space-y-6" action="/api/submit" method="POST" encType="multipart/form-data">
         {elements.map((element) => {
+          if (!shouldShowField(element)) return null;
+          
           const id = element.label.toLowerCase().replace(/\s+/g, "_");
           
           switch (element.type) {
@@ -51,7 +69,11 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                     {element.label}
                     {element.required && <span className="text-destructive ml-1">*</span>}
                   </Label>
-                  <Select name={id}>
+                  <Select 
+                    name={id}
+                    onValueChange={(value) => handleChange(element.id, value)}
+                    value={values[element.id]}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={`Select ${element.label.toLowerCase()}`} />
                     </SelectTrigger>

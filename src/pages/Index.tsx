@@ -67,6 +67,7 @@ const Index = () => {
                 <FormElement
                   key={element.id}
                   element={element}
+                  elements={elements}
                   onDelete={deleteElement}
                   onChange={updateElement}
                 />
