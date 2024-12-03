@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { FormElement } from "@/components/FormBuilder/FormElement";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
 import { Header } from "@/components/FormBuilder/Header";
 import { PreviewTabs } from "@/components/FormBuilder/PreviewTabs";
+import { FormBuilder } from "@/components/FormBuilder/FormBuilder";
 import { toast } from "sonner";
 
 interface FormElementType {
@@ -29,28 +27,6 @@ const Index = () => {
       required: true,
     },
   ]);
-
-  const addElement = () => {
-    const newElement = {
-      id: Math.random().toString(36).substr(2, 9),
-      type: "text",
-      label: "New Field",
-      required: false,
-    };
-    setElements([...elements, newElement]);
-  };
-
-  const deleteElement = (id: string) => {
-    setElements(elements.filter((element) => element.id !== id));
-  };
-
-  const updateElement = (id: string, updates: Partial<FormElementType>) => {
-    setElements(
-      elements.map((element) =>
-        element.id === id ? { ...element, ...updates } : element
-      )
-    );
-  };
 
   const downloadJson = () => {
     const jsonSchema = elements.map((element) => {
@@ -189,32 +165,8 @@ ${formHtml}
         <Header onDownloadJson={downloadJson} onDownloadHtml={downloadHtml} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-6 animate-slide-in">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold text-neutral-900">
-                Form Elements
-              </h2>
-              <Button 
-                onClick={addElement} 
-                variant="outline" 
-                size="sm"
-                className="hover:scale-105 transition-transform"
-              >
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Add Field
-              </Button>
-            </div>
-            <div className="space-y-4 glass-morphism rounded-lg p-6">
-              {elements.map((element) => (
-                <FormElement
-                  key={element.id}
-                  element={element}
-                  elements={elements}
-                  onDelete={deleteElement}
-                  onChange={updateElement}
-                />
-              ))}
-            </div>
+          <div className="lg:sticky lg:top-8 lg:h-[calc(100vh-8rem)] lg:overflow-auto">
+            <FormBuilder elements={elements} onElementsChange={setElements} />
           </div>
 
           <div className="space-y-8">
