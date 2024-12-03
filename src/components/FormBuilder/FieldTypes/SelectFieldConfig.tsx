@@ -4,19 +4,21 @@ import { Label } from "@/components/ui/label";
 interface SelectFieldConfigProps {
   element: {
     options?: string[];
+    optionValues?: string[];
   };
   onChange: (updates: any) => void;
 }
 
 export const SelectFieldConfig = ({ element, onChange }: SelectFieldConfigProps) => {
   const sanitizeValue = (value: string) => {
-    // Remove special characters and replace spaces with underscores for JSON
     return value.trim().toLowerCase().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
   };
 
-  const handleOptionsChange = (value: string) => {
+  const handleOptionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    
     // Split by comma and handle potential whitespace around commas
-    const options = value.split(/\s*,\s*/).filter(Boolean).map(opt => {
+    const options = inputValue.split(',').filter(Boolean).map(opt => {
       const trimmed = opt.trim();
       return {
         display: trimmed, // Keep spaces for display
@@ -35,12 +37,12 @@ export const SelectFieldConfig = ({ element, onChange }: SelectFieldConfigProps)
       <Label className="text-sm font-medium mb-2">Options</Label>
       <Input
         type="text"
-        placeholder="Comma-separated options"
-        value={element.options?.join(", ") || ""}
-        onChange={(e) => handleOptionsChange(e.target.value)}
+        placeholder="Option 1, Option 2, Option 3"
+        value={element.options?.join(', ') || ''}
+        onChange={handleOptionsChange}
       />
       <p className="text-sm text-muted-foreground mt-1">
-        Enter options separated by commas. Spaces are allowed.
+        Enter options separated by commas. Example: Red, Green, Blue
       </p>
     </div>
   );
