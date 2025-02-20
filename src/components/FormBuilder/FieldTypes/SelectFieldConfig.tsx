@@ -1,3 +1,4 @@
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -17,18 +18,21 @@ export const SelectFieldConfig = ({ element, onChange }: SelectFieldConfigProps)
   const handleOptionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     
-    // Split by comma and handle potential whitespace around commas
-    const options = inputValue.split(',').filter(Boolean).map(opt => {
+    // Allow typing commas by not filtering empty strings immediately
+    const options = inputValue.split(',').map(opt => {
       const trimmed = opt.trim();
       return {
-        display: trimmed, // Keep spaces for display
-        value: sanitizeValue(trimmed) // Sanitize for JSON/value
+        display: trimmed,
+        value: trimmed ? sanitizeValue(trimmed) : ''
       };
     });
 
+    // Only filter out empty strings when updating the form state
+    const filteredOptions = options.filter(opt => opt.display);
+
     onChange({
-      options: options.map(opt => opt.display), // Keep original display values in the form
-      optionValues: options.map(opt => opt.value) // Store sanitized values separately
+      options: filteredOptions.map(opt => opt.display),
+      optionValues: filteredOptions.map(opt => opt.value)
     });
   };
 
