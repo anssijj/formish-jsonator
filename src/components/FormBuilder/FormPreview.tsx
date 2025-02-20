@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,7 +45,12 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
 
   const shouldShowField = (element: FormPreviewProps["elements"][0]) => {
     if (!element.showWhen) return true;
-    return values[element.showWhen.field] === element.showWhen.value;
+    
+    // Get the controlling field's current value
+    const controllingFieldValue = values[element.showWhen.field];
+    
+    // Show the field if the controlling field's value matches the condition
+    return controllingFieldValue === element.showWhen.value;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -136,7 +142,7 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                   <Select 
                     name={id}
                     onValueChange={(value) => handleChange(element.id, value)}
-                    value={values[element.id] || undefined}
+                    value={values[element.id]}
                   >
                     <SelectTrigger
                       aria-required={element.required}
@@ -178,6 +184,8 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                   </Label>
                   <RadioGroup 
                     name={id}
+                    value={values[element.id]}
+                    onValueChange={(value) => handleChange(element.id, value)}
                     aria-required={element.required}
                     aria-invalid={isError}
                     aria-describedby={ariaDescribedBy}
@@ -210,7 +218,11 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                 <div key={element.id} className="flex items-center space-x-2">
                   <Checkbox 
                     id={id} 
-                    name={id} 
+                    name={id}
+                    checked={values[element.id] === "true"}
+                    onCheckedChange={(checked) => 
+                      handleChange(element.id, checked ? "true" : "false")
+                    }
                     required={element.required}
                     aria-required={element.required}
                     aria-invalid={isError}
@@ -240,6 +252,8 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                   <Textarea
                     id={id}
                     name={id}
+                    value={values[element.id] || ""}
+                    onChange={(e) => handleChange(element.id, e.target.value)}
                     placeholder={element.placeholder || `Enter ${element.label.toLowerCase()}`}
                     required={element.required}
                     aria-required={element.required}
@@ -270,6 +284,8 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
                     type={element.type}
                     id={id}
                     name={id}
+                    value={values[element.id] || ""}
+                    onChange={(e) => handleChange(element.id, e.target.value)}
                     placeholder={element.placeholder || `Enter ${element.label.toLowerCase()}`}
                     required={element.required}
                     aria-required={element.required}
