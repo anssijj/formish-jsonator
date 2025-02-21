@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BasicFieldConfig } from "./FieldTypes/BasicFieldConfig";
 import { SelectFieldConfig } from "./FieldTypes/SelectFieldConfig";
 import { FileFieldConfig } from "./FieldTypes/FileFieldConfig";
+import { Separator } from "@/components/ui/separator";
 
 interface FormElementType {
   id: string;
@@ -80,6 +82,14 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
             </Select>
           </div>
 
+          {(element.type === "select" || element.type === "radio") && (
+            <SelectFieldConfig element={element} onChange={handleChange} />
+          )}
+
+          {element.type === "file" && (
+            <FileFieldConfig element={element} onChange={handleChange} />
+          )}
+
           {/* Field Description */}
           <div>
             <Label className="text-sm font-medium mb-2">Description (Optional)</Label>
@@ -102,64 +112,68 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
             />
           </div>
 
-          {(element.type === "select" || element.type === "radio") && (
-            <SelectFieldConfig element={element} onChange={handleChange} />
-          )}
-
-          {element.type === "file" && (
-            <FileFieldConfig element={element} onChange={handleChange} />
-          )}
-
           {dropdownFields.length > 0 && (
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Show When</Label>
-              <Select
-                value={element.showWhen?.field || "none"}
-                onValueChange={(value) =>
-                  handleChange({
-                    showWhen: value !== "none" ? { field: value, value: "" } : undefined,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Always show" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Always show</SelectItem>
-                  {dropdownFields.map((field) => (
-                    <SelectItem key={field.id} value={field.id}>
-                      {field.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {element.showWhen?.field && (
-                <div>
-                  <Label className="text-sm font-medium">When Value Is</Label>
-                  <Select
-                    value={element.showWhen.value || "select_value"}
-                    onValueChange={(value) =>
-                      handleChange({
-                        showWhen: { ...element.showWhen, value },
-                      })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select value" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {elements
-                        .find((el) => el.id === element.showWhen?.field)
-                        ?.options?.map((option) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
+            <div className="space-y-4 mt-6">
+              <Separator className="my-4" />
+              <div className="space-y-4">
+                <h3 className="font-medium text-base">Conditional Display</h3>
+                <p className="text-sm text-muted-foreground">
+                  Make this field appear only when another dropdown field has a specific value.
+                </p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium">Show this field based on...</Label>
+                    <Select
+                      value={element.showWhen?.field || "none"}
+                      onValueChange={(value) =>
+                        handleChange({
+                          showWhen: value !== "none" ? { field: value, value: "" } : undefined,
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a dropdown field" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Always show this field</SelectItem>
+                        {dropdownFields.map((field) => (
+                          <SelectItem key={field.id} value={field.id}>
+                            {field.label}
                           </SelectItem>
                         ))}
-                    </SelectContent>
-                  </Select>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {element.showWhen?.field && (
+                    <div>
+                      <Label className="text-sm font-medium">When its value equals...</Label>
+                      <Select
+                        value={element.showWhen.value || "select_value"}
+                        onValueChange={(value) =>
+                          handleChange({
+                            showWhen: { ...element.showWhen, value },
+                          })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an option" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {elements
+                            .find((el) => el.id === element.showWhen?.field)
+                            ?.options?.map((option) => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           )}
         </div>
