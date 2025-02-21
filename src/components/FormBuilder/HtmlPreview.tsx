@@ -11,6 +11,7 @@ interface HtmlPreviewProps {
     label: string;
     required: boolean;
     options?: string[];
+    optionValues?: string[];
     accept?: string;
     showWhen?: {
       field: string;
@@ -20,6 +21,10 @@ interface HtmlPreviewProps {
 }
 
 export const HtmlPreview = ({ elements }: HtmlPreviewProps) => {
+  const sanitizeValue = (value: string) => {
+    return value.trim().toLowerCase().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+  };
+
   const generateStyledHtml = () => {
     const styles = `
 <style>
@@ -118,7 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
   <label for="${id}">${element.label}${requiredStar}</label>
   <select id="${id}" name="${id}"${requiredAttr}>
     ${(element.options || [])
-      .map((opt) => `    <option value="${opt}">${opt}</option>`)
+      .map((opt, index) => {
+        const value = element.optionValues?.[index] || sanitizeValue(opt);
+        return `    <option value="${value}">${opt}</option>`;
+      })
       .join("\n")}
   </select>
 </div>`;
@@ -127,13 +135,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return `<div class="form-group">
   <label>${element.label}${requiredStar}</label>
   ${(element.options || [])
-    .map(
-      (opt) =>
-        `  <div>
-    <input type="radio" id="${id}_${opt}" name="${id}" value="${opt}"${requiredAttr}>
-    <label for="${id}_${opt}">${opt}</label>
-  </div>`
-    )
+    .map((opt, index) => {
+      const value = element.optionValues?.[index] || sanitizeValue(opt);
+      return `  <div>
+    <input type="radio" id="${id}_${value}" name="${id}" value="${value}"${requiredAttr}>
+    <label for="${id}_${value}">${opt}</label>
+  </div>`;
+    })
     .join("\n")}
 </div>`;
 
