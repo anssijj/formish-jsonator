@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Highlight, themes } from "prism-react-renderer";
@@ -11,6 +12,10 @@ interface HtmlPreviewProps {
     required: boolean;
     options?: string[];
     accept?: string;
+    showWhen?: {
+      field: string;
+      value: string;
+    };
   }>;
 }
 
@@ -47,7 +52,37 @@ export const HtmlPreview = ({ elements }: HtmlPreviewProps) => {
     background-color: #1d4ed8;
   }
   .required { color: #ef4444; margin-left: 0.25rem; }
+  .hidden { display: none !important; }
 </style>`;
+
+    const conditionalFields = elements.filter(el => el.showWhen);
+    const script = conditionalFields.length > 0 ? `
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const formValues = {};
+  
+  function updateVisibility() {
+    ${conditionalFields.map(element => `
+    // Conditional display for ${element.label}
+    {
+      const field = document.getElementById('${element.id}').closest('.form-group');
+      const controllingField = document.getElementById('${element.showWhen?.field}');
+      const shouldShow = controllingField.value === '${element.showWhen?.value}';
+      field.classList.toggle('hidden', !shouldShow);
+    }`).join('\n')}
+  }
+
+  // Add change event listeners to all controlling fields
+  ${[...new Set(conditionalFields.map(el => el.showWhen?.field))].map(fieldId => `
+  document.getElementById('${fieldId}')?.addEventListener('change', function(e) {
+    formValues['${fieldId}'] = e.target.value;
+    updateVisibility();
+  });`).join('\n')}
+
+  // Initial visibility check
+  updateVisibility();
+});
+</script>` : '';
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -59,6 +94,7 @@ export const HtmlPreview = ({ elements }: HtmlPreviewProps) => {
 </head>
 <body>
     ${generateHtml()}
+    ${script}
 </body>
 </html>`;
   };
@@ -66,7 +102,7 @@ export const HtmlPreview = ({ elements }: HtmlPreviewProps) => {
   const generateHtml = () => {
     const formHtml = elements
       .map((element) => {
-        const id = element.label.toLowerCase().replace(/\s+/g, "_");
+        const id = element.id;
         const requiredAttr = element.required ? " required" : "";
         const requiredStar = element.required ? "<span class=\"required\">*</span>" : "";
         
