@@ -35,6 +35,7 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   const handleChange = (id: string, value: string) => {
+    console.log('Field changed:', id, 'New value:', value);
     setValues((prev) => ({ ...prev, [id]: value }));
     setErrors((prev) => ({ ...prev, [id]: false }));
   };
@@ -44,13 +45,18 @@ export const FormPreview = ({ elements }: FormPreviewProps) => {
   };
 
   const shouldShowField = (element: FormPreviewProps["elements"][0]) => {
+    // If there's no showWhen condition, always show the field
     if (!element.showWhen) return true;
     
-    // Get the controlling field's current value
-    const controllingFieldValue = values[element.showWhen.field];
+    const { field: controllingFieldId, value: requiredValue } = element.showWhen;
+    const controllingFieldValue = values[controllingFieldId];
     
-    // Show the field if the controlling field's value matches the condition
-    return controllingFieldValue === element.showWhen.value;
+    console.log('Checking visibility for field:', element.label);
+    console.log('Controlling field value:', controllingFieldValue);
+    console.log('Required value:', requiredValue);
+    
+    // Show the field if the controlling field's value matches the required value
+    return controllingFieldValue === requiredValue;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
