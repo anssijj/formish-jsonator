@@ -163,11 +163,15 @@ export const FormElement = ({ element, elements, onDelete, onChange }: FormEleme
                         <SelectContent>
                           {elements
                             .find((el) => el.id === element.showWhen?.field)
-                            ?.options?.map((option) => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
+                            ?.options?.map((option, index) => {
+                              const selectedField = elements.find((el) => el.id === element.showWhen?.field);
+                              const value = selectedField?.optionValues?.[index] || option;
+                              return (
+                                <SelectItem key={option} value={value}>
+                                  {option}
+                                </SelectItem>
+                              );
+                            })}
                         </SelectContent>
                       </Select>
                     </div>
