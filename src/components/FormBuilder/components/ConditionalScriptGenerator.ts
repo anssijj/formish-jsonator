@@ -1,11 +1,16 @@
 
 interface FormElement {
   id: string;
+  label: string;
   showWhen?: {
     field: string;
     value: string;
   };
 }
+
+const sanitizeValue = (value: string) => {
+  return value.trim().toLowerCase().replace(/[^a-zA-Z0-9\s_-]/g, '').replace(/\s+/g, '_');
+};
 
 export const generateConditionalScript = (elements: FormElement[]) => {
   const conditionalFields = elements.filter(el => el.showWhen);
@@ -20,18 +25,27 @@ document.addEventListener('DOMContentLoaded', function() {
   const formValues = {};
   
   function updateVisibility() {
-    ${conditionalFields.map(element => `
-    // Conditional display for ${element.id}
+    ${conditionalFields.map(element => {
+      const fieldName = sanitizeValue(element.label);
+      const controllingFieldName = elements.find(el => el.id === element.showWhen?.field)?.label;
+      const controllingFieldSanitized = controllingFieldName ? sanitizeValue(controllingFieldName) : element.showWhen?.field;
+      
+      return `
+    // Conditional display for ${fieldName}
     {
-      const field = document.getElementById('${element.id}').closest('.form-group');
-      const controllingField = document.getElementById('${element.showWhen?.field}');
+      const field = document.getElementById('${fieldName}').closest('.form-group');
+      const controllingField = document.getElementById('${controllingFieldSanitized}');
       const shouldShow = controllingField.value === '${element.showWhen?.value}';
       field.classList.toggle('hidden', !shouldShow);
-    }`).join('\n')}
+    }`;
+    }).join('\n')}
   }
 
   // Add change event listeners to all controlling fields
-  ${[...new Set(conditionalFields.map(el => el.showWhen?.field))].map(fieldId => `
+  ${[...new Set(conditionalFields.map(el => {
+    const controllingFieldName = elements.find(elem => elem.id === el.showWhen?.field)?.label;
+    return controllingFieldName ? sanitizeValue(controllingFieldName) : el.showWhen?.field;
+  }))].map(fieldId => `
   document.getElementById('${fieldId}')?.addEventListener('change', function(e) {
     formValues['${fieldId}'] = e.target.value;
     updateVisibility();

@@ -18,20 +18,20 @@ export const generateElementHtml = (element: {
   optionValues?: string[];
   accept?: string;
 }) => {
-  const { id } = element;
+  const fieldName = sanitizeValue(element.label);
   const { requiredAttr, requiredStar } = generateRequiredAttributes(element.required);
 
   switch (element.type) {
     case "file":
       return `<div class="form-group">
-  <label for="${id}">${element.label}${requiredStar}</label>
-  <input type="file" id="${id}" name="${id}" accept="${element.accept}"${requiredAttr}>
+  <label for="${fieldName}">${element.label}${requiredStar}</label>
+  <input type="file" id="${fieldName}" name="${fieldName}" accept="${element.accept}"${requiredAttr}>
 </div>`;
 
     case "select":
       return `<div class="form-group">
-  <label for="${id}">${element.label}${requiredStar}</label>
-  <select id="${id}" name="${id}"${requiredAttr}>
+  <label for="${fieldName}">${element.label}${requiredStar}</label>
+  <select id="${fieldName}" name="${fieldName}"${requiredAttr}>
     ${(element.options || [])
       .map((opt, index) => {
         const value = element.optionValues?.[index] || sanitizeValue(opt);
@@ -48,8 +48,8 @@ export const generateElementHtml = (element: {
     .map((opt, index) => {
       const value = element.optionValues?.[index] || sanitizeValue(opt);
       return `  <div>
-    <input type="radio" id="${id}_${value}" name="${id}" value="${value}"${requiredAttr}>
-    <label for="${id}_${value}">${opt}</label>
+    <input type="radio" id="${fieldName}_${value}" name="${fieldName}" value="${value}"${requiredAttr}>
+    <label for="${fieldName}_${value}">${opt}</label>
   </div>`;
     })
     .join("\n")}
@@ -57,20 +57,20 @@ export const generateElementHtml = (element: {
 
     case "checkbox":
       return `<div class="form-group">
-  <input type="checkbox" id="${id}" name="${id}"${requiredAttr}>
-  <label for="${id}">${element.label}</label>
+  <input type="checkbox" id="${fieldName}" name="${fieldName}"${requiredAttr}>
+  <label for="${fieldName}">${element.label}</label>
 </div>`;
 
     case "textarea":
       return `<div class="form-group">
-  <label for="${id}">${element.label}${requiredStar}</label>
-  <textarea id="${id}" name="${id}"${requiredAttr}></textarea>
+  <label for="${fieldName}">${element.label}${requiredStar}</label>
+  <textarea id="${fieldName}" name="${fieldName}"${requiredAttr}></textarea>
 </div>`;
 
     default:
       return `<div class="form-group">
-  <label for="${id}">${element.label}${requiredStar}</label>
-  <input type="${element.type}" id="${id}" name="${id}"${requiredAttr}>
+  <label for="${fieldName}">${element.label}${requiredStar}</label>
+  <input type="${element.type}" id="${fieldName}" name="${fieldName}"${requiredAttr}>
 </div>`;
   }
 };
