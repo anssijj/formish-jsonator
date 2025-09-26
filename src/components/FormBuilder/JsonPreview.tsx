@@ -14,7 +14,7 @@ interface JsonPreviewProps {
 
 export const JsonPreview = ({ elements }: JsonPreviewProps) => {
   const jsonSchema = elements.map((element) => {
-    const fieldName = element.label.toLowerCase().replace(/\s+/g, "_");
+    const fieldName = element.label.trim().toLowerCase().replace(/[^a-zA-Z0-9\s_-]/g, '').replace(/\s+/g, "_");
     return {
       data: {
         targetVariables: fieldName

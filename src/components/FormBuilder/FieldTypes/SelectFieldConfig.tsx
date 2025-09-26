@@ -17,7 +17,7 @@ export const SelectFieldConfig = ({ element, onChange }: SelectFieldConfigProps)
   const [newOption, setNewOption] = useState("");
 
   const sanitizeValue = (value: string) => {
-    return value.trim().toLowerCase().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+    return value.trim().toLowerCase().replace(/[^a-zA-Z0-9\s_-]/g, '').replace(/\s+/g, '_');
   };
 
   const handleAddOption = () => {
